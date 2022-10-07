@@ -1,0 +1,17 @@
+{
+    "name": "olaifa/cmspro",
+    "description": "RashBlog",
+    "require": {
+        "phpmailer/phpmailer": "^6.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Olaifa\\Cmspro\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Rasheed"
+        }
+    ]
+}
