@@ -1,265 +1,718 @@
-<?php include "./includes/header.php" ?>
+
+ <?php include "./includes/header.php" ?>
+
+
+ 
 <!-- ======= Header ======= -->
 <?php include "./includes/navigation.php" ?>
 
 <!-- End Header -->
 
-  <main id="main">
-    <section>
-      <div class="container" data-aos="fade-up">
-        <div class="row">
-          <div class="col-lg-12 text-center mb-5">
-            <h1 class="page-title">About us</h1>
+<main id="main">
+
+  <!-- ======= Hero Slider Section ======= -->
+  <section id="hero-slider" class="hero-slider">
+    <div class="container-md" data-aos="fade-in">
+      <div class="row">
+    
+        <div class="col-12">
+          <div class="swiper sliderFeaturedPosts">
+            <div class="swiper-wrapper">
+            <?php
+
+        
+                  if(isset($_GET['page'])){
+                    
+                  $page = $_GET['page'];
+                  }else{
+                  $page = "";
+                  }
+
+                  if($page == "" || $page == 1){
+                    $page_1 = 0;
+                    }else{
+                    // this determines the number of post per page
+                    $page_1 = ($page * 5) - 5;
+                    }
+   
+
+                  if(isset($_SESSION['user_role']) === 'admin'){
+    
+                     $query = "SELECT * FROM posts ORDER BY post_id DESC LIMIT 5, $page_1";
+  
+                    }else{
+  
+                      $query  =  "SELECT * FROM posts  WHERE post_status = 'published' ORDER BY post_id DESC LIMIT 5, $page_1";
+  
+                    }
+  
+      
+           $select_all_query = mysqli_query($connection, $query);
+          while(mysqli_fetch_assoc($select_all_query)){
+              $post_id = $row['post_id'];
+              $post_title = $row['post_title'];
+              $post_image = $row['post_image'];
+              $post_date = $row['post_date'];
+              $post_content = substr($row['post_content'], 0, 1000);
+              $post_status  = $row['post_status'];
+
+                ?>
+                <div class="swiper-slide">
+                <a href="./post/<?php echo $post_id ?>" class="img-bg d-flex align-items-end" style="background-image: url('images/<?php echo $post_image  ?>');">
+                  <div class="img-bg-inner">
+                    <h2><?php echo $post_title ?> </h2>
+                    <p><?php echo $post_content ?></p>
+                  </div>
+                </a>
+              </div>
+              <?php
+          }
+          // endwhile ;
+              ?>
+            
+            </div>
+            <div class="custom-swiper-button-next">
+              <span class="bi-chevron-right"></span>
+            </div>
+            <div class="custom-swiper-button-prev">
+              <span class="bi-chevron-left"></span>
+            </div>
+
+            <div class="swiper-pagination"></div>
           </div>
         </div>
 
-        <div class="row mb-5">
 
+
+
+      </div>
+    </div>
+  </section><!-- End Hero Slider Section -->
+
+  <!-- ======= Post Grid Section ======= -->
+  <section>
+    <div class="container">
+      <div class="row">
+<?php
+
+
+            $count_row = mysqli_num_rows($select_all_query);
+
+            if(!$count_row < 1){
+
+
+            // }else{
+
+                 $count_row = ceil($count_row/ 5);
+
+                /*
+
+               Query is set at the to  bannert post
+
+                */
+
+
+                if(mysqli_num_rows($select_all_query) < 1){
+
+                  echo "<div class='col-md-9' data-aos='fade-up'>
+                            <h3 class='text-center'>No post available</h3>
+                      </div>";
+                }else{
+                ?>
+                    <div class="col-md-9" data-aos="fade-up">
+
+                <?php
+
+
+                
+        $select_all_query = mysqli_query($connection, $query);
+        while(mysqli_fetch_assoc($select_all_query)){
+
+    
+        ?>
           <div class="d-md-flex post-entry-2 half">
-            <a href="#" class="me-4 thumbnail">
-              <img src="assets/img/post-landscape-2.jpg" alt="" class="img-fluid">
+            <a href="post.php?p_id=<?php echo $post_id ?>" class="me-4 thumbnail">
+              <img src="images/<?php echo $post_image ?>" alt="" class="img-fluid">
             </a>
-            <div class="ps-md-5 mt-4 mt-md-0">
-              <div class="post-meta mt-4">About us</div>
-              <h2 class="mb-4 display-4">Company History</h2>
+            <div>
+              <div class="post-meta"><span class="date">
+                <?php
+                $query = "SELECT * FROM categories WHERE category_id = {$post_category_id}";
+                $select_post_category_query = mysqli_query($connection, $query);
 
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, perspiciatis repellat maxime, adipisci non ipsam at itaque rerum vitae, necessitatibus nulla animi expedita cumque provident inventore? Voluptatum in tempora earum deleniti, culpa odit veniam, ea reiciendis sunt ullam temporibus aut!</p>
-              <p>Fugit eaque illum blanditiis, quo exercitationem maiores autem laudantium unde excepturi dolores quasi eos vero harum ipsa quam laborum illo aut facere voluptates aliquam adipisci sapiente beatae ullam. Tempora culpa iusto illum accusantium cum hic quisquam dolor placeat officiis eligendi.</p>
+                confirmationQuery($select_post_category_query);
+
+                while ($row = mysqli_fetch_assoc($select_post_category_query)) {
+                  $category_post_title = $row['category_title'];
+                }
+                    echo $category_post_title ;
+                
+                ?>
+              </span> <span class="mx-1">&bullet;</span> <span><?php echo $post_date ?></span></div>
+              <h3><a href="post/<?php echo ($post_id) ?>"> <?php echo $post_title?></a></h3>
+              <p><?php echo $post_content?></p>
+              <div class="d-flex align-items-center author">
+                <div class="photo"><img src="/cmspo/images/<?php echo $post_image ?>" alt="" class="img-fluid"></div>
+                <div class="name">
+                  <h3 class="m-0 p-0"><?php echo $post_author_user ?></h3>
+                </div>
+              </div>
             </div>
           </div>
+          <?php
+        
+              }
+      // endwhile ;
 
-          <div class="d-md-flex post-entry-2 half mt-5">
-            <a href="#" class="me-4 thumbnail order-2">
-              <img src="assets/img/post-landscape-1.jpg" alt="" class="img-fluid">
-            </a>
-            <div class="pe-md-5 mt-4 mt-md-0">
-              <div class="post-meta mt-4">Mission &amp; Vision</div>
-              <h2 class="mb-4 display-4">Mission &amp; Vision</h2>
+      // if($post_status == 'published'){
+      ?>
+       
+          <div class="text-start py-4">
+            <div class="custom-pagination">
+              <?php 
+                 if($page == 1|| $page > 1) {
+                  echo "<a href='index.php?page=".($page+1)."' class='prev'>NEXT</a>";   
+              } 
+              for($i = 1; $i <= $count_row; $i++){
+             
+                if($i == $page){
+                  echo "<a href='index.php?page={$i}' class='active'>{$i}</a>";
+                }else{
+                  echo "<a href='index.php?page={$i}'>{$i}</a>";
+                }
 
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, perspiciatis repellat maxime, adipisci non ipsam at itaque rerum vitae, necessitatibus nulla animi expedita cumque provident inventore? Voluptatum in tempora earum deleniti, culpa odit veniam, ea reiciendis sunt ullam temporibus aut!</p>
-              <p>Fugit eaque illum blanditiis, quo exercitationem maiores autem laudantium unde excepturi dolores quasi eos vero harum ipsa quam laborum illo aut facere voluptates aliquam adipisci sapiente beatae ullam. Tempora culpa iusto illum accusantium cum hic quisquam dolor placeat officiis eligendi.</p>
+              }
+              if($page >= 2){
+                echo "<a href='index.php?page=".($page-1)."' class='next'>Previous</a>";
+              }
+               ?>
+          
             </div>
           </div>
+          <?php
+      // }
+ 
+      ?>
+        </div>
+        <?php
+    }
+
+      }
+      ?>
+
+        <div class="col-md-3">
+         
+            <?php //include "./includes/sidebar.php" ?>
 
         </div>
 
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="mb-5 bg-light py-5">
-      <div class="container" data-aos="fade-up">
-        <div class="row justify-content-between align-items-lg-center">
-          <div class="col-lg-5 mb-4 mb-lg-0">
-            <h2 class="display-4 mb-4">Latest News</h2>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed, rem eaque vel est asperiores iste pariatur placeat molestias, rerum provident ea maiores debitis eum earum esse quas architecto! Minima, voluptatum! Minus tempora distinctio quo sint est blanditiis voluptate eos. Commodi dolore nesciunt culpa adipisci nemo expedita suscipit autem dolorum rerum?</p>
-            <p>At magni dolore ullam odio sapiente ipsam, numquam eius minus animi inventore alias quam fugit corrupti error iste laboriosam dolorum culpa doloremque eligendi repellat iusto vel impedit odit cum. Sequi atque molestias nesciunt rem eum pariatur quibusdam deleniti saepe eius maiores porro quam, praesentium ipsa deserunt laboriosam adipisci. Optio, animi!</p>
-            <p><a href="#" class="more">View All Blog Posts</a></p>
-          </div>
-          <div class="col-lg-6">
-            <div class="row">
-              <div class="col-6">
-                <img src="assets/img/post-portrait-3.jpg" alt="" class="img-fluid mb-4">
-              </div>
-              <div class="col-6 mt-4">
-                <img src="assets/img/post-portrait-4.jpg" alt="" class="img-fluid mb-4">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+</main><!-- End #main -->
 
-    <section>
-      <div class="container" data-aos="fade-up">
+
+<!-- ======= Footer ======= -->
+<?php include "./includes/footer.php" ?>
+
+
+
+
+
+
+
+
+
+
+
+
+ <?php include "./includes/header.php" ?>
+
+
+ 
+<!-- ======= Header ======= -->
+<?php include "./includes/navigation.php" ?>
+
+<!-- End Header -->
+
+<main id="main">
+
+
+          <!-- ======= Hero Slider Section ======= -->
+    <section id="hero-slider" class="hero-slider">
+      <div class="container-md" data-aos="fade-in">
+
+
+    <?php  
+      //  Post Per PAge
+            $per_page = 3;
+                        
+            if(isset($_GET['page'])){
+                                
+              $page = $_GET['page'];
+              }else{
+              $page = "";
+              }
+
+              if($page == "" || $page == 1){
+                $page_1 = 0;
+
+                }else{
+                // this determines the number of post per page
+                $page_1 = ($page * $per_page) - $per_page;
+                }
+
+
+            // $post_query_count = "SELECT * FROM posts WHERE post_status = 'published'";
+
+
+            ?>
         <div class="row">
-          <div class="col-12 text-center mb-5">
-            <div class="row justify-content-center">
-              <div class="col-lg-6">
-                <h2 class="display-4">Our Team</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil sint sed, fugit distinctio ad eius itaque deserunt doloribus harum excepturi laudantium sit officiis et eaque blanditiis. Dolore natus excepturi recusandae.</p>
+          <div class="col-12">
+            <div class="swiper sliderFeaturedPosts">
+
+              <div class="swiper-wrapper">
+
+              <?php 
+
+
+
+                if(isset($_SESSION['user_role']) === 'admin'){
+                    
+                  $query_1 = "SELECT * FROM posts ORDER BY post_id DESC LIMIT 5, $page_1";
+
+                }else{
+
+                  $query_1 =  "SELECT * FROM posts  WHERE post_status = 'published' ORDER BY post_id DESC LIMIT $page_1, $per_page";
+
+                }
+                        // $query_1 =  "SELECT * FROM posts WHERE post_status ='published' ORDER BY post_id DESC LIMIT 3";   
+                                    
+                        $select_all_post1_query =  mysqli_query($connection, $query_1);
+
+                        confirmationQuery($select_all_post1_query);
+
+
+               while($row = mysqli_fetch_assoc($select_all_post1_query)){
+
+                $post_id = $row['post_id'];
+                $post_title = $row['post_title'];
+                $post_image = $row['post_image'];
+                $post_date = $row['post_date'];
+                $post_content = substr($row['post_content'], 0, 1000);
+                $post_status  = $row['post_status'];
+  
+                ?>
+                <div class="swiper-slide">
+                <a href="post.php?p_id=<?php echo $post_id?>" class="img-bg d-flex align-items-end" style="background-image: url('./images/<?php echo $post_image?>');">
+                  <div class="img-bg-inner">
+                    <h2><?php echo $post_title?></h2>
+                    <p><?php echo $post_content?></p>
+                  </div>
+                </a>
               </div>
+
+            <?php  }
+              
+              
+              ?>
+              
+              </div>
+              <div class="custom-swiper-button-next">
+                <span class="bi-chevron-right"></span>
+              </div>
+              <div class="custom-swiper-button-prev">
+                <span class="bi-chevron-left"></span>
+              </div>
+
+              <div class="swiper-pagination"></div>
             </div>
           </div>
-          <div class="col-lg-4 text-center mb-5">
-            <img src="assets/img/person-1.jpg" alt="" class="img-fluid rounded-circle w-50 mb-4">
-            <h4>Cameron Williamson</h4>
-            <span class="d-block mb-3 text-uppercase">Founder &amp; CEO</span>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, perspiciatis repellat maxime, adipisci non ipsam at itaque rerum vitae, necessitatibus nulla animi expedita cumque provident inventore? Voluptatum in tempora earum deleniti, culpa odit veniam, ea reiciendis sunt ullam temporibus aut!</p>
+        </div>
+      </div>
+    <!-- </section> -->
+    <!-- End Hero Slider Section -->
+
+
+
+    <!-- ========================= Category Section -->
+    <!-- <section> -->
+      <div class="container mt-5">
+        <div class="row">
+
+          
+          <div class="col-md-9" data-aos="fade-up">
+
+
+
+            <?php
+            $find_count = mysqli_query($connection, $query_1);
+  
+
+            $count = mysqli_num_rows($find_count);
+
+            if($count < 1){
+
+
+               echo "<h1 class='text-center '> No Post available</h1> ";
+
+            }else{
+
+
+
+            $count = ceil($count / $per_page);
+
+
+
+
+            //  $query_2  =  "SELECT * FROM posts  WHERE post_status = 'published' ORDER BY post_id DESC LIMIT $page_1, $per_page";
+
+            
+            $select_all_post2_query =  mysqli_query($connection, $query_1);
+
+            confirmationQuery($select_all_post2_query);
+            
+
+           while($row = mysqli_fetch_assoc($select_all_post2_query)){
+
+            
+            $post_id = $row['post_id'];
+            $post_category_id = $row['post_category_id'];
+            $post_title = $row['post_title'];
+            $post_author_image = $row['post_author_image'];
+            $post_author_user = $row['post_author_user'];
+            $post_image = $row['post_image'];
+            $post_date = $row['post_date'];
+            $post_content = substr($row['post_content'], 0, 1000);
+            $post_status  = $row['post_status'];
+
+            ?>
+          <h3 class="category-title">Category: 
+
+            <?php
+                $query = "SELECT * FROM categories WHERE category_id = {$post_category_id}";
+                $select_post_category_query = mysqli_query($connection, $query);
+
+                confirmationQuery($select_post_category_query);
+
+                while ($row = mysqli_fetch_assoc($select_post_category_query)) {
+                  $category_post_title = $row['category_title'];
+                }
+                    echo $category_post_title ;
+                
+                ?>
+            </h3>
+            <!-- Each Post Entry -->
+            <div class="d-md-flex post-entry-2 half">
+              <a href="post.php?p_id=<?php echo $post_id?>" class="me-4 thumbnail">
+                <img src="./images/<?php echo $post_image?>" alt="" class="img-fluid">
+              </a>
+              <div>
+                <div class="post-meta"><span class="date">
+                <?php
+                $query = "SELECT * FROM categories WHERE category_id = {$post_category_id}";
+                $select_post_category_query = mysqli_query($connection, $query);
+
+                confirmationQuery($select_post_category_query);
+
+                while ($row = mysqli_fetch_assoc($select_post_category_query)) {
+                  $category_post_title = $row['category_title'];
+                }
+                    echo $category_post_title ;
+                
+                ?>
+                </span> <span class="mx-1">&bullet;</span> <span><?php echo $post_date?></span></div>
+                <h3><a href="post.php?p_id=<?php echo $post_id?>"><?php echo $post_title?></a></h3>
+                <p><?php echo $post_content?></p>
+                <div class="d-flex align-items-center author">
+                  <div class="photo"><img src="./images/<?php echo $post_author_image?>" alt="" class="img-fluid"></div>
+                  <div class="name">
+                    <h3 class="m-0 p-0"><?php echo $post_author_user?></h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <?php  }
+              
+            }
+              
+            ?>
+            <!-- Pagination -->
+            <div class="text-start py-4">
+              <div class="custom-pagination">
+
+              <?php
+              
+
+              
+              if($page == 1 || $page > 1 ) {
+               echo "<a href='index.php?page=".($page+1)."' class='prev'>NEXT</a>";   
+             } 
+              for($i = 1; $i <= $count ; $i++){
+
+                if($i == $page){
+                  echo "<a href='index.php?page={$i}' class='active'>{$i}</a>";
+                }else{
+                  echo "<a href='index.php?page={$i}'>{$i}</a>";
+                }
+                
+              }
+              if($page >= 2){
+                echo "<a href='index.php?page=".($page-1)."' class='next'>Previous</a>";
+              }
+              
+
+
+               ?>
+
+                <!-- <a href="#" class="prev">Prevous</a>
+                <a href="#" class="active">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <a href="#">4</a>
+                <a href="#">5</a>
+                <a href="#" class="next">Next</a> -->
+              </div>
+            </div>
+
+
+
+
           </div>
-          <div class="col-lg-4 text-center mb-5">
-            <img src="assets/img/person-2.jpg" alt="" class="img-fluid rounded-circle w-50 mb-4">
-            <h4>Wade Warren</h4>
-            <span class="d-block mb-3 text-uppercase">Founder, VP</span>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, perspiciatis repellat maxime, adipisci non ipsam at itaque rerum vitae, necessitatibus nulla animi expedita cumque provident inventore? Voluptatum in tempora earum deleniti, culpa odit veniam, ea reiciendis sunt ullam temporibus aut!</p>
+
+          <div class="col-md-3">
+            <!-- ======= Sidebar ======= -->
+        
+  <?php include "./includes/sidebar.php" ?>
+
           </div>
-          <div class="col-lg-4 text-center mb-5">
-            <img src="assets/img/person-3.jpg" alt="" class="img-fluid rounded-circle w-50 mb-4">
-            <h4>Jane Cooper</h4>
-            <span class="d-block mb-3 text-uppercase">Editor Staff</span>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, perspiciatis repellat maxime, adipisci non ipsam at itaque rerum vitae, necessitatibus nulla animi expedita cumque provident inventore? Voluptatum in tempora earum deleniti, culpa odit veniam, ea reiciendis sunt ullam temporibus aut!</p>
-          </div>
-          <div class="col-lg-4 text-center mb-5">
-            <img src="assets/img/person-4.jpg" alt="" class="img-fluid rounded-circle w-50 mb-4">
-            <h4>Cameron Williamson</h4>
-            <span class="d-block mb-3 text-uppercase">Editor Staff</span>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, perspiciatis repellat maxime, adipisci non ipsam at itaque rerum vitae, necessitatibus nulla animi expedita cumque provident inventore? Voluptatum in tempora earum deleniti, culpa odit veniam, ea reiciendis sunt ullam temporibus aut!</p>
-          </div>
-          <div class="col-lg-4 text-center mb-5">
-            <img src="assets/img/person-5.jpg" alt="" class="img-fluid rounded-circle w-50 mb-4">
-            <h4>Cameron Williamson</h4>
-            <span class="d-block mb-3 text-uppercase">Editor Staff</span>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, perspiciatis repellat maxime, adipisci non ipsam at itaque rerum vitae, necessitatibus nulla animi expedita cumque provident inventore? Voluptatum in tempora earum deleniti, culpa odit veniam, ea reiciendis sunt ullam temporibus aut!</p>
-          </div>
-          <div class="col-lg-4 text-center mb-5">
-            <img src="assets/img/person-6.jpg" alt="" class="img-fluid rounded-circle w-50 mb-4">
-            <h4>Cameron Williamson</h4>
-            <span class="d-block mb-3 text-uppercase">Editor Staff</span>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, perspiciatis repellat maxime, adipisci non ipsam at itaque rerum vitae, necessitatibus nulla animi expedita cumque provident inventore? Voluptatum in tempora earum deleniti, culpa odit veniam, ea reiciendis sunt ullam temporibus aut!</p>
-          </div>
+
         </div>
       </div>
     </section>
 
-  </main><!-- End #main -->
 
-  <!-- ======= Footer ======= -->
-  <footer id="footer" class="footer">
+</main><!-- End #main -->
 
-    <div class="footer-content">
-      <div class="container">
 
-        <div class="row g-5">
-          <div class="col-lg-4">
-            <h3 class="footer-heading">About ZenBlog</h3>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam ab, perspiciatis beatae autem deleniti voluptate nulla a dolores, exercitationem eveniet libero laudantium recusandae officiis qui aliquid blanditiis omnis quae. Explicabo?</p>
-            <p><a href="about.html" class="footer-link-more">Learn More</a></p>
-          </div>
-          <div class="col-6 col-lg-2">
-            <h3 class="footer-heading">Navigation</h3>
-            <ul class="footer-links list-unstyled">
-              <li><a href="index.html"><i class="bi bi-chevron-right"></i> Home</a></li>
-              <li><a href="index.html"><i class="bi bi-chevron-right"></i> Blog</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Categories</a></li>
-              <li><a href="single-post.html"><i class="bi bi-chevron-right"></i> Single Post</a></li>
-              <li><a href="about.html"><i class="bi bi-chevron-right"></i> About us</a></li>
-              <li><a href="contact.html"><i class="bi bi-chevron-right"></i> Contact</a></li>
-            </ul>
-          </div>
-          <div class="col-6 col-lg-2">
-            <h3 class="footer-heading">Categories</h3>
-            <ul class="footer-links list-unstyled">
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Business</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Culture</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Sport</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Food</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Politics</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Celebrity</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Startups</a></li>
-              <li><a href="category.html"><i class="bi bi-chevron-right"></i> Travel</a></li>
+<!-- ======= Footer ======= -->
+<?php include "./includes/footer.php" ?>
 
-            </ul>
-          </div>
 
-          <div class="col-lg-4">
-            <h3 class="footer-heading">Recent Posts</h3>
 
-            <ul class="footer-links footer-blog-entry list-unstyled">
-              <li>
-                <a href="single-post.html" class="d-flex align-items-center">
-                  <img src="assets/img/post-sq-1.jpg" alt="" class="img-fluid me-3">
-                  <div>
-                    <div class="post-meta d-block"><span class="date">Culture</span> <span class="mx-1">&bullet;</span> <span>Jul 5th '22</span></div>
-                    <span>5 Great Startup Tips for Female Founders</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <?php include "./includes/header.php" ?>
+
+
+ 
+<!-- ======= Header ======= -->
+<?php include "./includes/navigation.php" ?>
+
+<!-- End Header -->
+
+<main id="main">
+
+
+          <!-- ======= Hero Slider Section ======= -->
+    <section id="hero-slider" class="hero-slider">
+      <div class="container-md" data-aos="fade-in">
+
+        <div class="row">
+          <div class="col-12">
+            <div class="swiper sliderFeaturedPosts">
+
+              <div class="swiper-wrapper">
+
+              <?php 
+
+
+                        $query_1 =  "SELECT * FROM posts WHERE post_status ='published' ORDER BY post_id DESC LIMIT 3";   
+                                    
+                        $select_all_post1_query =  mysqli_query($connection, $query_1);
+
+                        confirmationQuery($select_all_post1_query);
+
+
+               while($row = mysqli_fetch_assoc($select_all_post1_query)){
+
+                $post_id = $row['post_id'];
+                $post_title = $row['post_title'];
+                $post_image = $row['post_image'];
+                $post_date = $row['post_date'];
+                $post_content = substr($row['post_content'], 0, 1000);
+                $post_status  = $row['post_status'];
+  
+                ?>
+                <div class="swiper-slide">
+                <a href="post.php?p_id=<?php echo $post_id?>" class="img-bg d-flex align-items-end" style="background-image: url('./images/<?php echo $post_image?>');">
+                  <div class="img-bg-inner">
+                    <h2><?php echo $post_title?></h2>
+                    <p><?php echo $post_content?></p>
                   </div>
                 </a>
-              </li>
+              </div>
 
-              <li>
-                <a href="single-post.html" class="d-flex align-items-center">
-                  <img src="assets/img/post-sq-2.jpg" alt="" class="img-fluid me-3">
-                  <div>
-                    <div class="post-meta d-block"><span class="date">Culture</span> <span class="mx-1">&bullet;</span> <span>Jul 5th '22</span></div>
-                    <span>What is the son of Football Coach John Gruden, Deuce Gruden doing Now?</span>
-                  </div>
-                </a>
-              </li>
+            <?php  }
+              
+              
+              ?>
+              
+              </div>
+              <div class="custom-swiper-button-next">
+                <span class="bi-chevron-right"></span>
+              </div>
+              <div class="custom-swiper-button-prev">
+                <span class="bi-chevron-left"></span>
+              </div>
 
-              <li>
-                <a href="single-post.html" class="d-flex align-items-center">
-                  <img src="assets/img/post-sq-3.jpg" alt="" class="img-fluid me-3">
-                  <div>
-                    <div class="post-meta d-block"><span class="date">Culture</span> <span class="mx-1">&bullet;</span> <span>Jul 5th '22</span></div>
-                    <span>Life Insurance And Pregnancy: A Working Mom’s Guide</span>
-                  </div>
-                </a>
-              </li>
-
-              <li>
-                <a href="single-post.html" class="d-flex align-items-center">
-                  <img src="assets/img/post-sq-4.jpg" alt="" class="img-fluid me-3">
-                  <div>
-                    <div class="post-meta d-block"><span class="date">Culture</span> <span class="mx-1">&bullet;</span> <span>Jul 5th '22</span></div>
-                    <span>How to Avoid Distraction and Stay Focused During Video Calls?</span>
-                  </div>
-                </a>
-              </li>
-
-            </ul>
-
+              <div class="swiper-pagination"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    <!-- </section> -->
+    <!-- End Hero Slider Section -->
 
-    <div class="footer-legal">
-      <div class="container">
 
-        <div class="row justify-content-between">
-          <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-            <div class="copyright">
-              © Copyright <strong><span>ZenBlog</span></strong>. All Rights Reserved
+
+    <!-- ========================= Category Section -->
+    <!-- <section> -->
+      <div class="container mt-5">
+        <div class="row">
+
+          
+          <div class="col-md-9" data-aos="fade-up">
+
+
+
+            <?php
+
+
+            $select_all_post2_query =  mysqli_query($connection, $query_2);
+
+            confirmationQuery($select_all_post2_query);
+            
+           while($row = mysqli_fetch_assoc($select_all_post2_query)){
+
+            
+            $post_id = $row['post_id'];
+            $post_category_id = $row['post_category_id'];
+            $post_title = $row['post_title'];
+            $post_author_image = $row['post_author_image'];
+            $post_author_user = $row['post_author_user'];
+            $post_image = $row['post_image'];
+            $post_date = $row['post_date'];
+            $post_content = substr($row['post_content'], 0, 1000);
+            $post_status  = $row['post_status'];
+
+            ?>
+
+          <h3 class="category-title">Category: 
+            <?php
+                $query = "SELECT * FROM categories WHERE category_id = {$post_category_id}";
+                $select_post_category_query = mysqli_query($connection, $query);
+
+                confirmationQuery($select_post_category_query);
+
+                while ($row = mysqli_fetch_assoc($select_post_category_query)) {
+                  $category_post_title = $row['category_title'];
+                }
+                    echo $category_post_title ;
+                
+                ?>
+            </h3>
+            <!-- Each Post Entry -->
+            <div class="d-md-flex post-entry-2 half">
+              <a href="post.php?p_id=<?php echo $post_id?>" class="me-4 thumbnail">
+                <img src="./images/<?php echo $post_image?>" alt="" class="img-fluid">
+              </a>
+              <div>
+                <div class="post-meta"><span class="date">
+                <?php
+                $query = "SELECT * FROM categories WHERE category_id = {$post_category_id}";
+                $select_post_category_query = mysqli_query($connection, $query);
+
+                confirmationQuery($select_post_category_query);
+
+                while ($row = mysqli_fetch_assoc($select_post_category_query)) {
+                  $category_post_title = $row['category_title'];
+                }
+                    echo $category_post_title ;
+                
+                ?>
+                </span> <span class="mx-1">&bullet;</span> <span><?php echo $post_date?></span></div>
+                <h3><a href="post.php?p_id=<?php echo $post_id?>"><?php echo $post_title?></a></h3>
+                <p><?php echo $post_content?></p>
+                <div class="d-flex align-items-center author">
+                  <div class="photo"><img src="./images/<?php echo $post_author_image?>" alt="" class="img-fluid"></div>
+                  <div class="name">
+                    <h3 class="m-0 p-0"><?php echo $post_author_user?></h3>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="credits">
-              <!-- All the links in the footer should remain intact. -->
-              <!-- You can delete the links only if you purchased the pro version. -->
-              <!-- Licensing information: https://bootstrapmade.com/license/ -->
-              <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/herobiz-bootstrap-business-template/ -->
-              Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+            <?php  }
+              
+              
+            ?>
+            <!-- Pagination -->
+            <div class="text-start py-4">
+              <div class="custom-pagination">
+                <a href="#" class="prev">Prevous</a>
+                <a href="#" class="active">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <a href="#">4</a>
+                <a href="#">5</a>
+                <a href="#" class="next">Next</a>
+              </div>
             </div>
+
+
+
 
           </div>
 
-          <div class="col-md-6">
-            <div class="social-links mb-3 mb-lg-0 text-center text-md-end">
-              <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-              <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-              <a href="#" class="google-plus"><i class="bi bi-skype"></i></a>
-              <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
-            </div>
+          <div class="col-md-3">
+            <!-- ======= Sidebar ======= -->
+        
+  <?php include "./includes/sidebar.php" ?>
 
           </div>
 
         </div>
-
       </div>
-    </div>
+    </section>
 
-  </footer>
 
-  <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+</main><!-- End #main -->
 
-  <!-- Vendor JS Files -->
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
 
-  <!-- Template Main JS File -->
-  <script src="assets/js/main.js"></script>
+<!-- ======= Footer ======= -->
+<?php include "./includes/footer.php" ?>
 
-</body>
 
-</html>
